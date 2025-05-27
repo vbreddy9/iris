@@ -30,15 +30,15 @@ app.get("/home", (req, res) => {
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "info@vr2tech.in",
-    pass: "lfuq qrtw uyyh imfd", // Replace with your actual Gmail app password
+    user: "admin@aurealconsulting.com",
+    pass: "ihdt hwnd ipyx iacl", // Replace with your actual Gmail app password
   },
 });
 
 // Send Auto-Reply Email to user
 const sendAutoReply = async (userEmail, userName) => {
   const mailOptions = {
-    from: `"CINQ by Raghava" <info@vr2tech.in>`,
+    from: `"IRIS by Raghava" <admin@aurealconsulting.com>`,
     to: userEmail,
     subject: "Thank You for Your Interest!",
     html: `
@@ -49,7 +49,7 @@ const sendAutoReply = async (userEmail, userName) => {
 
         <div style="padding: 20px;">
           <h2 style="color: #cb8904;">Hello ${userName},</h2>
-          <p>Thank you for reaching out to the <strong>CINQ by Raghava Team</strong>!</p>
+          <p>Thank you for reaching out to the <strong>IRIS by Raghava Team</strong>!</p>
           <p>We appreciate your interest and will get in touch with you shortly to assist you further.</p>
 
           <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />
@@ -61,7 +61,7 @@ const sendAutoReply = async (userEmail, userName) => {
         </div>
 
         <div style="background-color: #f0f0f0; padding: 15px 20px; font-size: 14px; text-align: center; color: #666;">
-          <p style="margin: 0; font-style: italic;">Warm regards,<br/>CINQ by Raghava Team</p>
+          <p style="margin: 0; font-style: italic;">Warm regards,<br/>IRIS by Raghava Team</p>
         </div>
       </div>
     `,
@@ -73,9 +73,9 @@ const sendAutoReply = async (userEmail, userName) => {
 // Notify Admin with Form Data
 const notifyAdmin = async (formData) => {
   const mailOptions = {
-    from: `"CINQ by Raghava" <info@vr2tech.in>`,
-    to: "vb.reddy20@gmail.com",
-    subject: "New Lead - CINQ by Raghava",
+    from: `"IRIS by Raghava" <admin@aurealconsulting.com>`,
+    to: "ayesha@aurealconsulting.com",
+    subject: "New Lead - IRIS by Raghava",
     html: `
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
         <div style="background-color: #cb8904; color: white; padding: 15px 20px; text-align: center;">
@@ -109,7 +109,7 @@ const notifyAdmin = async (formData) => {
           </p>
           <p style="margin: 8px 0 0; font-style: italic; color: #555;">
             Thank you,<br/>
-            CINQ by Raghava Team
+            IRIS by Raghava Team
           </p>
         </div>
       </div>
