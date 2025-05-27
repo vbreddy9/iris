@@ -62,7 +62,7 @@ const Banner = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/home/send-email", // Match backend port here
+        "https://iris.get-details.com/home/send-email", // Match backend port here
         {
           name: formData.name,
           email: formData.email,
@@ -172,15 +172,8 @@ const Banner = () => {
                 required
               />
               <span>
-                I authorize Urbanrise Projects and its representatives to Call, SMS, Email or WhatsApp me. I also accept{" "}
-                <a href="/terms-conditions" className="text-blue-500 underline">
-                  T&C
-                </a>{" "}
-                and{" "}
-                <a href="/privacy-policy" className="text-blue-500 underline">
-                  Privacy Policy
-                </a>
-                .
+                I authorize Raghava Projects and its representatives to Call, SMS, Email or WhatsApp me. I also accept{" "}
+                T&C {" "}and{" "} Privacy Policy                .
               </span>
             </div>
             {errors.agreeTerms && <p className="text-red-500 text-sm">{errors.agreeTerms}</p>}
