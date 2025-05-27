@@ -74,7 +74,7 @@ const PopupForm = ({ show: externalShow, onClose: externalOnClose }) => {
     setIsSubmitting(true);
 
     try {
-      const res = await axios.post("http://localhost:5000/home/send-email", {
+      const res = await axios.post("https://iris.get-details.com/home/send-email", {
         name: formData.name,
         email: formData.email,
         mobile: formData.mobile.replace(/\D/g, ""),
@@ -160,15 +160,8 @@ const PopupForm = ({ show: externalShow, onClose: externalOnClose }) => {
               required
             />
             <span>
-              I authorize Urbanrise to contact me via Call, SMS, WhatsApp. I agree to the{" "}
-              <a href="/terms-conditions" className="text-blue-500 underline">
-                T&C
-              </a>{" "}
-              and{" "}
-              <a href="/privacy-policy" className="text-blue-500 underline">
-                Privacy Policy
-              </a>
-              .
+              I authorize Raghava to contact me via Call, SMS, WhatsApp. I agree to the{" "}
+              T&C and{" "} Privacy Policy.
             </span>
           </div>
           {errors.agreeTerms && (
