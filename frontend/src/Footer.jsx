@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -21,12 +22,12 @@ const Footer = () => {
 
         {/* Links Section */}
         <div className="flex justify-center items-center space-x-3 mt-4">
-          <a href="/privacy-policy" target="_blank" className="text-[10px] text-white ">
-            Privacy Policy
-          </a>
-          <a href="/terms-conditions" target="_blank" className="text-[10px] text-white ">
-            Terms & Conditions
-          </a>
+          <Link to="/privacy-policy" className="text-[10px] text-white hover:underline">
+          Privacy Policy
+           </Link>
+          <Link to="/terms-conditions" className="text-[10px] text-white hover:underline">
+          Terms & Conditions
+        </Link>
         </div>
       </div>
     </footer>
