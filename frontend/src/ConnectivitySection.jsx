@@ -33,7 +33,7 @@ const ConnectivitySection = () => {
         Seamlessly Connected, <span style={{ color: '#cb8904' }}>Ideally Positioned</span>
       </h2>
       <p className="mt-4 text-gray-600 text-sm sm:text-base md:text-lg max-w-3xl mx-auto text-center">
-        CINQ is located in Financial District, Nanakramguda, Hyderabad, offering seamless access to top schools, hospitals, business hubs, and leisure destinations—bringing the perfect balance to life.
+        IRIS is located in Financial District, Nanakramguda, Hyderabad, offering seamless access to top schools, hospitals, business hubs, and leisure destinations—bringing the perfect balance to life.
       </p>
       </div>
 
@@ -62,7 +62,7 @@ const ConnectivitySection = () => {
             className="w-full h-auto object-cover rounded-lg"
           />
           <button className="absolute top-4 right-4 bg-maroon-700 text-white px-4 py-2 rounded-lg hover:bg-maroon-800 transition">
-            Navigate to CINQ
+            Navigate to IRIS
           </button>
         </div>
       </div>
