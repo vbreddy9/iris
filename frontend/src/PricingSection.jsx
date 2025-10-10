@@ -24,12 +24,12 @@ const PricingSection = () => {
         <div className="flex justify-between pt-4 text-left">
           <p className="text-black">4 BHK</p>
           <p className="text-black">5430  Sq.Ft</p>
-          <p className="text-black">₹7.33 Cr*</p>
+          <p className="text-black">₹9.50 Cr*</p>
         </div>
         <div className="flex justify-between pt-4 text-left">
           <p className="text-black">4 BHK</p>
           <p className="text-black">6605  Sq.Ft</p>
-          <p className="text-black">₹8.91 Cr*</p>
+          <p className="text-black">₹11.55 Cr*</p>
         </div>
        </div>
 
