@@ -3,14 +3,15 @@ const cors = require("cors");
 const nodemailer = require("nodemailer");
 const bodyParser = require("body-parser");
 const requestIp = require("request-ip");
+const axios = require("axios");
 
 const app = express();
 const PORT = 5000;
 
-// CORS config - Allow all origins for now (adjust origin as needed)
+// CORS config - allow all origins for now
 app.use(
   cors({
-    origin: "*", // For dev, allow all origins; in production, specify exact URL(s)
+    origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
   })
@@ -26,12 +27,12 @@ app.get("/home", (req, res) => {
   res.status(200).json("Backend working");
 });
 
-// Nodemailer transporter - use your real Gmail credentials/app password
+// Nodemailer transporter - use Gmail credentials/app password
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: "admin@aurealconsulting.com",
-    pass: "ihdt hwnd ipyx iacl", // Replace with your actual Gmail app password
+    pass: "ihdt hwnd ipyx iacl", // replace with your actual Gmail app password
   },
 });
 
@@ -46,20 +47,16 @@ const sendAutoReply = async (userEmail, userName) => {
         <div style="background-color: #cb8904; color: white; padding: 15px 20px; text-align: center;">
           <h1 style="margin: 0; font-size: 22px;">Thank You for Contacting Us!</h1>
         </div>
-
         <div style="padding: 20px;">
           <h2 style="color: #cb8904;">Hello ${userName},</h2>
           <p>Thank you for reaching out to the <strong>IRIS by Raghava Team</strong>!</p>
-          <p>We appreciate your interest and will get in touch with you shortly to assist you further.</p>
-
+          <p>We appreciate your interest and will get in touch with you shortly.</p>
           <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />
-
           <p style="font-size: 14px; color: #555;">
-            In the meantime, if you have any questions, feel free to call us anytime at 
+            For any questions, call us at 
             <strong><a href="tel:+919392925831" style="color: #cb8904; text-decoration: none;">+91-9392925831</a></strong>.
           </p>
         </div>
-
         <div style="background-color: #f0f0f0; padding: 15px 20px; font-size: 14px; text-align: center; color: #666;">
           <p style="margin: 0; font-style: italic;">Warm regards,<br/>IRIS by Raghava Team</p>
         </div>
@@ -81,7 +78,6 @@ const notifyAdmin = async (formData) => {
         <div style="background-color: #cb8904; color: white; padding: 15px 20px; text-align: center;">
           <h1 style="margin: 0; font-size: 24px;">New Inquiry Received</h1>
         </div>
-
         <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
           <tbody>
             <tr style="background-color: #f7f7f7;">
@@ -102,10 +98,9 @@ const notifyAdmin = async (formData) => {
             </tr>
           </tbody>
         </table>
-
         <div style="padding: 15px 20px; font-size: 14px; background-color: #f0f0f0; border-top: 1px solid #ddd;">
           <p style="margin: 0;">
-            Please follow up with this lead as early as possible to provide assistance and further details.
+            Please follow up with this lead as early as possible.
           </p>
           <p style="margin: 8px 0 0; font-style: italic; color: #555;">
             Thank you,<br/>
@@ -119,24 +114,63 @@ const notifyAdmin = async (formData) => {
   return transporter.sendMail(mailOptions);
 };
 
-// POST route to receive form data and send emails
+// TeleCRM Integration
+const pushToTeleCRM = async (lead) => {
+  const telecrmUrl = "https://api.telecrm.in/enterprise/669f8deb9c0669c069b90fc3/autoupdatelead";
+  const telecrmAuth = "Bearer dfc2d8a1-cca4-4226-b121-ebe4b22f6b071721799771196:b0f4940e-3a88-4941-9f34-5485c382e5d7";
+
+  const payload = {
+    fields: {
+      name: lead.name,
+      phone: lead.mobile,
+      email: lead.email,
+      ip_address: lead.ip,
+    },
+    actions: [
+      {
+        type: "SYSTEM_NOTE",
+        text: "Lead Source: IRIS by Raghava Website",
+      },
+    ],
+  };
+
+  try {
+    const response = await axios.post(telecrmUrl, payload, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: telecrmAuth,
+      },
+    });
+    console.log("✅ TeleCRM Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ TeleCRM Error:", error.response?.data || error.message);
+    throw new Error("Failed to push lead to TeleCRM");
+  }
+};
+
+// POST route to receive form data and process
 app.post("/home/send-email", async (req, res) => {
   const { name, email, mobile } = req.body;
   const ip = req.clientIp || "Unknown";
 
-  // Basic validation
   if (!name || !email || !mobile) {
     return res.status(400).json({ error: "Name, email, and mobile are required." });
   }
 
   try {
-    // Send emails in parallel
-    await Promise.all([sendAutoReply(email, name), notifyAdmin({ name, email, mobile, ip })]);
-    console.log("Emails sent successfully");
-    res.status(200).json({ message: "Emails sent successfully" });
+    // Send emails and push to CRM in parallel
+    await Promise.all([
+      sendAutoReply(email, name),
+      notifyAdmin({ name, email, mobile, ip }),
+      pushToTeleCRM({ name, email, mobile, ip }),
+    ]);
+
+    console.log("✅ Emails sent and lead pushed to TeleCRM");
+    res.status(200).json({ message: "Emails sent and lead added to TeleCRM successfully" });
   } catch (error) {
-    console.error("Email sending error:", error);
-    res.status(500).json({ error: "Failed to send emails", details: error.message });
+    console.error("❌ FULL ERROR LOG:", error);
+    res.status(500).json({ error: "Something went wrong", details: error.message });
   }
 });
 
