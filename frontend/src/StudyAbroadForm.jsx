@@ -7,7 +7,7 @@ const StudyAbroadForm = () => {
   return (
     <div className="w-full relative">
       {/* MOBILE VIEW IMAGE */}
-      <div className="md:hidden w-full h-[400px] bg-no-repeat bg-center bg-contain" style={{ backgroundImage: `url(${logo2})` }}></div>
+      <div className="md:hidden w-full h-[420px] bg-no-repeat bg-center bg-cover" style={{ backgroundImage: `url(${logo2})` }}></div>
 
       {/* MOBILE VIEW CONTENT */}
       <div className="relative md:hidden w-full max-w-6xl mx-auto px-2 flex flex-col items-center justify-between space-y-6 z-10">
