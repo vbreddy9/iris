@@ -1,6 +1,6 @@
 import React from "react";
 import logo1 from "./assets/iris-banner.webp";
-import logo2 from "./assets/ris-mobile.png";
+import logo2 from "./assets/rise-mobile.png";
 import { MapPin } from "lucide-react";
 
 const StudyAbroadForm = () => {
