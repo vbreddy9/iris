@@ -143,7 +143,7 @@ const PopupForm = ({ show: externalShow, onClose: externalOnClose }) => {
       alert("Submission failed. Please try again.");
     } finally {
       setIsSubmitting(false);
-    }
+    };
   /* --------------------------------
      STOP POPUP IF ALREADY SUBMITTED
   ----------------------------------*/
