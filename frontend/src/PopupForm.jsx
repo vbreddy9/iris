@@ -7,6 +7,7 @@ const PopupForm = ({ show: externalShow, onClose: externalOnClose }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -17,16 +18,17 @@ const PopupForm = ({ show: externalShow, onClose: externalOnClose }) => {
   });
 
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   /* --------------------------------
-     CHECK URL FOR submitted=true
+     CHECK IF ALREADY SUBMITTED
   ----------------------------------*/
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("submitted") === "true") {
-      setHasSubmitted(true);
-    }
+    const submitted =
+      params.get("submitted") === "true" ||
+      localStorage.getItem("popupSubmitted") === "true";
+
+    if (submitted) setHasSubmitted(true);
   }, []);
 
   /* --------------------------------
@@ -44,8 +46,7 @@ const PopupForm = ({ show: externalShow, onClose: externalOnClose }) => {
   }, []);
 
   /* --------------------------------
-     AUTO OPEN POPUP (10s)
-     ONLY IF NOT SUBMITTED
+     AUTO OPEN POPUP AFTER 10s
   ----------------------------------*/
   useEffect(() => {
     if (hasSubmitted) return;
@@ -101,7 +102,7 @@ const PopupForm = ({ show: externalShow, onClose: externalOnClose }) => {
   };
 
   /* --------------------------------
-     SUBMIT HANDLER
+     SUBMIT HANDLER (FIXED)
   ----------------------------------*/
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -119,19 +120,20 @@ const PopupForm = ({ show: externalShow, onClose: externalOnClose }) => {
           ip: formData.ip,
         },
         {
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
       );
-    
-      // ✅ Update URL
+
+      // prevent popup again
+      localStorage.setItem("popupSubmitted", "true");
       window.history.pushState({}, "", "?submitted=true");
+
       setHasSubmitted(true);
-    
-      // ✅ Show Thank You
       setShowPopup(false);
       setShowThankYou(true);
-    
-      // Reset form
+
       setFormData((prev) => ({
         name: "",
         email: "",
@@ -143,106 +145,94 @@ const PopupForm = ({ show: externalShow, onClose: externalOnClose }) => {
       alert("Submission failed. Please try again.");
     } finally {
       setIsSubmitting(false);
-    };
-  /* --------------------------------
-     STOP POPUP IF ALREADY SUBMITTED
-  ----------------------------------*/
-  if (hasSubmitted) {
-    return showThankYou ? (
-      <ThankYouModal onClose={() => setShowThankYou(false)} />
-    ) : null;
-  }
+    }
+  };
 
-  if (!isShown) return null;
+  /* --------------------------------
+     STOP POPUP IF SUBMITTED
+  ----------------------------------*/
+  if (hasSubmitted && !showThankYou) return null;
+
+  if (!isShown && !showThankYou) return null;
 
   return (
     <>
-      {/* MAIN FORM POPUP */}
-      <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center px-4">
-        <div className="bg-white p-6 sm:p-8 rounded-lg shadow-xl w-full max-w-lg relative">
-          <button
-            onClick={handleClose}
-            className="absolute top-2 right-2 text-gray-600 hover:text-red-600 text-2xl"
-            aria-label="Close popup"
-          >
-            &times;
-          </button>
-
-          <h2 className="text-xl font-bold text-center text-gray-800 mb-4">
-            Get a Call Back
-          </h2>
-
-          <form className="space-y-4" onSubmit={handleSubmit} noValidate>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              placeholder="Full Name*"
-              className="w-full p-3 border border-gray-300 rounded"
-            />
-            {errors.name && (
-              <p className="text-red-500 text-sm">{errors.name}</p>
-            )}
-
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              placeholder="Email Address*"
-              className="w-full p-3 border border-gray-300 rounded"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm">{errors.email}</p>
-            )}
-
-            <PhoneInput
-              country="in"
-              value={formData.mobile}
-              onChange={(value) =>
-                setFormData((prev) => ({ ...prev, mobile: value }))
-              }
-              inputProps={{ name: "mobile", required: true }}
-              containerClass="phone-container"
-              inputClass="phone-input"
-            />
-            {errors.mobile && (
-              <p className="text-red-500 text-sm">{errors.mobile}</p>
-            )}
-
-            <div className="flex items-start text-sm">
-              <input
-                type="checkbox"
-                name="agreeTerms"
-                checked={formData.agreeTerms}
-                onChange={handleInputChange}
-                className="mr-2 mt-1"
-              />
-              <span>
-              I authorize Raghava to contact me via Call, SMS, WhatsApp. I agree to the{" "}
-              T&C and{" "} Privacy Policy.
-            </span>
-            </div>
-            {errors.agreeTerms && (
-              <p className="text-red-500 text-sm">{errors.agreeTerms}</p>
-            )}
-
+      {/* FORM POPUP */}
+      {isShown && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center px-4">
+          <div className="bg-white p-6 sm:p-8 rounded-lg shadow-xl w-full max-w-lg relative">
             <button
-              type="submit"
-              className="w-full text-white p-3 rounded text-lg bg-[#cb8904] hover:bg-[#a77203] transition"
-              disabled={isSubmitting}
+              onClick={handleClose}
+              className="absolute top-2 right-2 text-gray-600 hover:text-red-600 text-2xl"
             >
-              {isSubmitting ? "Submitting..." : "Submit your request"}
+              &times;
             </button>
-          </form>
+
+            <h2 className="text-xl font-bold text-center mb-4">
+              Get a Call Back
+            </h2>
+
+            <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                placeholder="Full Name*"
+                className="w-full p-3 border rounded"
+              />
+              {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Email Address*"
+                className="w-full p-3 border rounded"
+              />
+              {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+
+              <PhoneInput
+                country="in"
+                value={formData.mobile}
+                onChange={(value) =>
+                  setFormData((prev) => ({ ...prev, mobile: value }))
+                }
+              />
+              {errors.mobile && <p className="text-red-500 text-sm">{errors.mobile}</p>}
+
+              <div className="flex items-start text-sm">
+                <input
+                  type="checkbox"
+                  name="agreeTerms"
+                  checked={formData.agreeTerms}
+                  onChange={handleInputChange}
+                  className="mr-2 mt-1"
+                />
+                <span>
+                  I authorize Raghava to contact me via Call, SMS, WhatsApp. I agree to
+                  the T&C and Privacy Policy.
+                </span>
+              </div>
+              {errors.agreeTerms && (
+                <p className="text-red-500 text-sm">{errors.agreeTerms}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-[#cb8904] hover:bg-[#a77203] text-white p-3 rounded"
+              >
+                {isSubmitting ? "Submitting..." : "Submit your request"}
+              </button>
+            </form>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* THANK YOU MODAL */}
-      {showThankYou && (
-        <ThankYouModal onClose={() => setShowThankYou(false)} />
-      )}
+      {showThankYou && <ThankYouModal onClose={() => setShowThankYou(false)} />}
     </>
   );
 };
@@ -250,27 +240,22 @@ const PopupForm = ({ show: externalShow, onClose: externalOnClose }) => {
 /* --------------------------------
    THANK YOU MODAL
 ----------------------------------*/
-const ThankYouModal = ({ onClose }) => {
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 z-[9999] flex items-center justify-center px-4">
-      <div className="bg-white p-6 sm:p-8 rounded-lg shadow-xl max-w-sm w-full text-center">
-        <h2 className="text-xl font-bold text-gray-800 mb-3">
-          Thank You!
-        </h2>
-        <p className="text-gray-600 mb-6">
-          Your details have been submitted successfully. Our team will
-          contact you shortly.
-        </p>
-
-        <button
-          onClick={onClose}
-          className="w-full py-2 bg-[#00b4e6] hover:bg-[#002954] text-white rounded transition"
-        >
-          OK
-        </button>
-      </div>
+const ThankYouModal = ({ onClose }) => (
+  <div className="fixed inset-0 bg-black bg-opacity-60 z-[9999] flex items-center justify-center px-4">
+    <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+      <h2 className="text-xl font-bold mb-3">Thank You!</h2>
+      <p className="mb-6">
+        Your details have been submitted successfully. Our team will contact
+        you shortly.
+      </p>
+      <button
+        onClick={onClose}
+        className="w-full py-2 bg-[#00b4e6] hover:bg-[#002954] text-white rounded"
+      >
+        OK
+      </button>
     </div>
-  );
-};
+  </div>
+);
 
 export default PopupForm;
