@@ -110,21 +110,27 @@ const PopupForm = ({ show: externalShow, onClose: externalOnClose }) => {
     setIsSubmitting(true);
 
     try {
-      await axios.post("https://iris.get-details.com/home/send-email, {
-        name: formData.name,
-        email: formData.email,
-        mobile: formData.mobile.replace(/\D/g, ""),
-        ip: formData.ip,
-      });
-
+      await axios.post(
+        "https://iris.get-details.com/home/send-email",
+        {
+          name: formData.name,
+          email: formData.email,
+          mobile: formData.mobile.replace(/\D/g, ""),
+          ip: formData.ip,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    
       // ✅ Update URL
       window.history.pushState({}, "", "?submitted=true");
       setHasSubmitted(true);
-
+    
       // ✅ Show Thank You
       setShowPopup(false);
       setShowThankYou(true);
-
+    
       // Reset form
       setFormData((prev) => ({
         name: "",
@@ -138,8 +144,6 @@ const PopupForm = ({ show: externalShow, onClose: externalOnClose }) => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
   /* --------------------------------
      STOP POPUP IF ALREADY SUBMITTED
   ----------------------------------*/
